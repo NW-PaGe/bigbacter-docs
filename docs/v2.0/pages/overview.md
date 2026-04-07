@@ -2,9 +2,8 @@
 title: Overview
 layout: page
 nav_order: 3
-grand_parent: v2.0
-parent: Usage Guide
-permalink: /docs/v2.0/pages/usage/overview/
+parent: v2.0
+permalink: /docs/v2.0/pages/overview/
 ---
 
 # {{ page.title }}

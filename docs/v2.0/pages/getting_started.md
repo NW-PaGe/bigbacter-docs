@@ -2,9 +2,8 @@
 title: Getting Started
 layout: page
 nav_order: 2
-grand_parent: v2.0
-parent: Usage Guide
-permalink: /docs/v2.0/pages/usage/getting_started/
+parent: v2.0
+permalink: /docs/v2.0/pages/getting_started/
 ---
 
 # {{ page.title }}
@@ -25,7 +24,7 @@ The following are required to run BigBacter:
     - [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/installation.html). 
 
 {: .important}
-BigBacter does not support Conda / Mamba. Please submit a [feature request](https://github.com/DOH-JDJ0303/BigBacter/issues) if this is essential for your lab.
+BigBacter does not support Conda / Mamba. Please submit a [feature request](https://github.com/NW-PaGe/BigBacter/issues) if this is essential for your lab.
 
 # Nextflow Basics
 Below are some general pointers for how to run Nextflow workflows.
@@ -34,7 +33,7 @@ There are two general ways you can specify which version of BigBacter you want t
 1. Tell Nextflow which version you want to use
 
     ```bash
-    nextflow run doh-jdj0303/BigBacter \
+    nextflow run NW-PaGe/BigBacter \
         -r v1.0 \
         -profile docker \
         --input samplesheet.csv \
@@ -43,7 +42,7 @@ There are two general ways you can specify which version of BigBacter you want t
 
 2. Clone the workflow version manually
     ```bash
-    git clone https://github.com/doh-jdj0303/BigBacter.git -b v1.0 
+    git clone https://github.com/NW-PaGe/BigBacter.git -b v1.0 
     ```
     ```bash
     nextflow run BigBacter/main.nf \
@@ -71,7 +70,7 @@ process {
 }
 ```
 ```bash
-nextflow run doh-jdj0303/BigBacter \
+nextflow run NW-PaGe/BigBacter \
     -r v2.0 \
     -c custom.config \
     -profile docker \
@@ -84,7 +83,7 @@ nextflow run doh-jdj0303/BigBacter \
 ## Resuming a run
 Nextflow can resume a run. This comes in handy when a workflow fails or when you need to make small parameter adjustments. Below is an example of how you can resume a workflow run:
 ```bash
-nextflow run doh-jdj0303/BigBacter \
+nextflow run NW-PaGe/BigBacter \
     -r v2.0 \
     -profile docker \
     --input samplesheet.csv \
@@ -95,12 +94,12 @@ nextflow run doh-jdj0303/BigBacter \
 # Testing BigBacter
 Verify that BigBacter is running properly using the command below. Update `-profile` to your preferred container engine.
 ```bash
-nextflow run doh-jdj0303/BigBacter \
+nextflow run NW-PaGe/BigBacter \
     -r v2.0 \
     -profile (docker|podman|apptainer|singularity),test \
     --outdir BigBacter_test
 ```
-You can learn more about how the test configuration [here](https://github.com/DOH-JDJ0303/BigBacter/blob/main/conf/test.config)
+You can learn more about how the test configuration [here](https://github.com/NW-PaGe/BigBacter/blob/main/conf/test.config)
 
 # Basic Usage
-In-depth overviews of [inputs](../inputs) and [outputs](../outputs/) are available. All other questions / issues should be submitted via the BigBacter [GitHub issues](https://github.com/DOH-JDJ0303/BigBacter/issues) page or by [email](mailto:waphl-bioinformatics@doh.wa.gov).
+In-depth overviews of [inputs](../inputs) and [outputs](../outputs/) are available. All other questions / issues should be submitted via the BigBacter [GitHub issues](https://github.com/NW-PaGe/BigBacter/issues) page or by [email](mailto:waphl-bioinformatics@doh.wa.gov).
