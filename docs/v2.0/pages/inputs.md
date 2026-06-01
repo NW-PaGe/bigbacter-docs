@@ -168,8 +168,8 @@ Whether to overwrite existing signature files for a sample.
 
 > By default, signature files are reused if they already exist in `--db`. Enable this to force regeneration.
 
-## `--clust_overwrite`
-Whether to create a PCoA plot when running floc.
+## `--clust_plot`
+Whether to create PCoA and Neighbor-joining plots when running floc.
 
 - Options: `true`, `false`
 - Default: `false`

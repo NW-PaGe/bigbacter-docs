@@ -6,4 +6,4 @@ has_children: true
 permalink: /docs/v2.0/
 ---
 
-# <img src="../../assets/media/bigbacter_logo_draft2.png" alt="BigBacter logo" width="100" style="vertical-align: middle; margin-right: 8px;"> BigBacter v2.0 Documentation
+# <img src="{{site.baseurl}}/assets/media/bigbacter_logo.png" alt="BigBacter logo" width="100" style="vertical-align: middle; margin-right: 8px;"> BigBacter v2.0 Documentation

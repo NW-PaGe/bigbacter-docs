@@ -1,15 +1,15 @@
 title: BigBacter Docs
-description: Documentation for the VAPER pipeline
+description: Documentation for the BigBacter pipeline
 theme: just-the-docs
 
 url: https://github.com/waphl-bioinformatics/bigbacter-docs
 
 baseurl: "/bigbacter-docs"
 
-favicon_ico: "/assets/media/vaper-logo.ico"
+favicon_ico: "/assets/media/bigbacter_logo.ico"
 
 aux_links:
-  BigBacter GitHub: https://github.com/waphl-bioinformatics/bigbacter
+  BigBacter GitHub: https://github.com/DOH-JDJ0303/bigbacter-nf
 
 callouts:
   note:

@@ -4,7 +4,7 @@ layout: home
 nav_order: 1
 ---
 <p align="center">
-    <img src="assets/media/bigbacter_logo_draft2.png" width="80%">
+    <img src="assets/media/bigbacter_logo.png" width="80%">
 </p>
 
 # **Welcome to the BigBacter Documentation Page!**
