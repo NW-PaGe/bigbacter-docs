@@ -73,7 +73,7 @@ The floc database is intentionally simple compared to PopPUNK databases. Rather 
 
 A key consequence of this design is that BigBacter can be run with **as little as a single sample** for a given species. Databases are created on the fly during the first run and expanded with each subsequent run. This contrasts with PopPUNK, which requires a pre-built reference database to be created *a priori* before any samples can be assigned to clusters - a significant barrier when working with less common or emerging pathogens.
 
-[Kristen et al. 2026](https://millerkrista.github.io/_pages/aphl26poster_supp_materials.html) found that floc generally performs as well as or better than PopPUNK for cluster assignments, supporting the decision to adopt it as the clustering backbone for BigBacter v2.
+[Miller et al. 2026](https://millerkrista.github.io/_pages/aphl26poster_supp_materials.html) found that floc generally performs as well as or better than PopPUNK for cluster assignments, supporting the decision to adopt it as the clustering backbone for BigBacter v2.
 
 {: .important }
 > Databases created using BigBacter v1 are not compatible with v2.
