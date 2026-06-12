@@ -112,10 +112,17 @@ Whether to push results to the BigBacter database after the run.
 
 # Asset Options
 
-## `--gambit_db`
-Path to the GAMBIT database used for taxonomic classification.
+## `--gambit_gdb`
+Path to the GAMBIT database file used for taxonomic classification.
 
-- Default: `${projectDir}/assets/databases/gambit`
+- Default: `https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gdb`
+
+> Used to classify samples when no `taxon` is provided in the samplesheet.
+
+## `--gambit_gs`
+Path to the GAMBIT database file used for taxonomic classification.
+
+- Default: `https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gs`
 
 > Used to classify samples when no `taxon` is provided in the samplesheet.
 
@@ -236,6 +243,14 @@ Whether to perform recombination masking in addition to standard variant detecti
 - Default: `true`
 
 > When enabled, recombinant regions identified by Gubbins are masked prior to phylogenetic analysis.
+
+## `--keep_bam`
+ Keep the bam file created during variant calling.
+
+- Options: `true`, `false`
+- Default: `false`
+
+> Enabling will dramatically increase database size.
 
 ---
 
