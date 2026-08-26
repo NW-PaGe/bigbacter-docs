@@ -14,9 +14,6 @@ permalink: /docs/v2.0/pages/overview/
 
 ---
 
-## Flowchart
-![](../../media/bigbacter-v2_0-nw-page.png)
-
 # What is BigBacter?
 
 BigBacter is a Nextflow pipeline for routine bacterial genomic surveillance. It accepts raw reads or assemblies, clusters samples by genomic similarity, constructs core genome alignments, and produces phylogenetic trees and pairwise distance matrices - all in an iterative, database-backed workflow designed to grow with your dataset over time.
@@ -31,6 +28,9 @@ BigBacter is a Nextflow pipeline for routine bacterial genomic surveillance. It 
 🧬 <strong>Dual distance metrics</strong> - reports both core-genome SNP distances and whole-genome containment scores to capture both SNP-level and accessory genome variation<br>
 
 </div>
+
+## Flowchart
+![](../../media/bigbacter-v2_0-nw-page.png)
 
 ---
 
