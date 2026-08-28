@@ -16,7 +16,7 @@ permalink: /docs/v2.0/pages/getting_started/
 BigBacter is built using [Nextflow](https://www.nextflow.io/). Nextflow simplifies the development and execution of complex, scalable data analysis workflows by enabling reproducibility, portability across computing environments, and seamless integration with container technologies like Docker and Singularity.
 
 The following are required to run BigBacter:
-- [Nextflow](https://www.nextflow.io/docs/latest/install.html) (version 23.04.0 or higher)
+- [Nextflow](https://www.nextflow.io/docs/latest/install.html) (version 25.04+)
 - One of the following container engines: 
     - [Podman](https://podman.io/docs/installation) (recommended)
     - [Docker](https://docs.docker.com/engine/install/)
@@ -34,7 +34,7 @@ There are two general ways you can specify which version of BigBacter you want t
 
     ```bash
     nextflow run NW-PaGe/BigBacter \
-        -r v1.0 \
+        -r main \
         -profile docker \
         --input samplesheet.csv \
         --outdir results
@@ -42,8 +42,9 @@ There are two general ways you can specify which version of BigBacter you want t
 
 2. Clone the workflow version manually
     ```bash
-    git clone https://github.com/NW-PaGe/BigBacter.git -b v1.0 
+    git clone https://github.com/NW-PaGe/BigBacter.git -b main
     ```
+
     ```bash
     nextflow run BigBacter/main.nf \
         -profile docker \
@@ -69,9 +70,10 @@ process {
     ]
 }
 ```
+
 ```bash
 nextflow run NW-PaGe/BigBacter \
-    -r v2.0 \
+    -r main \
     -c custom.config \
     -profile docker \
     --input samplesheet.csv \
@@ -84,7 +86,7 @@ nextflow run NW-PaGe/BigBacter \
 Nextflow can resume a run. This comes in handy when a workflow fails or when you need to make small parameter adjustments. Below is an example of how you can resume a workflow run:
 ```bash
 nextflow run NW-PaGe/BigBacter \
-    -r v2.0 \
+    -r main \
     -profile docker \
     --input samplesheet.csv \
     --outdir results \
@@ -95,7 +97,7 @@ nextflow run NW-PaGe/BigBacter \
 Verify that BigBacter is running properly using the command below. Update `-profile` to your preferred container engine.
 ```bash
 nextflow run NW-PaGe/BigBacter \
-    -r v2.0 \
+    -r main \
     -profile (docker|podman|apptainer|singularity),test \
     --outdir BigBacter_test
 ```

@@ -52,7 +52,7 @@ ${outdir}/
 │   │   │   │   ├── ${timestamp}-${taxa}-${cluster}.vcf
 │   │   │   │   ├── ${timestamp}-${taxa}-${cluster}.bed
 │   │   │   │   └── ${timestamp}-${taxa}-${cluster}.per_branch_statistics.csv
-│   │   │   ├── reports
+│   │   │   ├── report
 │   │   │   │   ├── ${timestamp}-${taxa}-${cluster}.microreact
 │   │   │   │   └── ${timestamp}-${taxa}-${cluster}.masked.microreact
 │   │   │   ├── summary
@@ -204,9 +204,9 @@ A maximum likelihood phylogenetic tree is produced per cluster for clusters with
 | `*.nwk` | Maximum likelihood phylogenetic tree in Newick format produced by IQ-TREE |
 
 # Reports
-A Microreact report is produced per cluster, combining the phylogenetic tree, Floc and SNP distance matrices, per-sample summary, and core genome plot. When recombination masking is enabled, two reports are produced — one using the standard outputs and one using the masked outputs.
+A Microreact report is produced per cluster, combining the phylogenetic tree, Floc and SNP distance matrices, per-sample summary, and core genome plot. When recombination masking is enabled, two report are produced — one using the standard outputs and one using the masked outputs.
 ```bash
-│   └── reports
+│   └── report
 │       ├── ${timestamp}-${taxa}-${cluster}.microreact
 │       └── ${timestamp}-${taxa}-${cluster}.masked.microreact
 ```

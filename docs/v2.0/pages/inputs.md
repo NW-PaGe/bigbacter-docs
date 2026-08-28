@@ -68,7 +68,7 @@ sample02,sample02_R1_001.fastq.gz,sample02_R2_001.fastq.gz
 |`fastq_1`|Absolute path to the forward (R1) Illumina read file (`.fq` or `.fastq`). Must be supplied with `fastq_2`. Cannot be supplied with `sra` column.|
 |`fastq_2`|Absolute path to the reverse (R2) Illumina read file (`.fq` or `.fastq`). Must be supplied with `fastq_1`. Cannot be supplied with `sra` column.|
 |`assembly`|Absolute path to an existing assembly file (`.fasta` or `.fa`). If provided, assembly will be skipped for this sample.|
-|`taxon`|Taxonomic name of the sample (e.g., `Staphylococcus aureus`). If provided, taxonomic classification will be skipped for this sample.|
+|`taxa`|Taxonomic name of the sample (e.g., `Staphylococcus aureus`). If provided, taxonomic classification will be skipped for this sample.|
 |`sra`|SRA accession number (e.g., `SRR12345678`). Cannot be supplied with `fastq_1` or `fastq_2` columns.|
 |`genbank`|GenBank accession number of a reference genome to use for this sample. Overrides automatic reference selection.|
 |`cluster`|Pre-assigned cluster ID for this sample. If provided, cluster assignment will be skipped for this sample.|
@@ -117,14 +117,14 @@ Path to the GAMBIT database file used for taxonomic classification.
 
 - Default: `https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gdb`
 
-> Used to classify samples when no `taxon` is provided in the samplesheet.
+> Used to classify samples when no `taxa` is provided in the samplesheet.
 
 ## `--gambit_gs`
 Path to the GAMBIT database file used for taxonomic classification.
 
 - Default: `https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gs`
 
-> Used to classify samples when no `taxon` is provided in the samplesheet.
+> Used to classify samples when no `taxa` is provided in the samplesheet.
 
 ## `--microreact_template`
 Path to the Microreact template JSON file used for visualization.
