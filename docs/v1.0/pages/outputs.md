@@ -1,9 +1,9 @@
 ---
-title: Outputs
+title: Output
 layout: page
 nav_order: 5
 parent: v1.0
-permalink: /docs/v1.0/pages/outputs/
+permalink: /docs/v1.0/pages/output/
 ---
 
 # {{ page.title }}
