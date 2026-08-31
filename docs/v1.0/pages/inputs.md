@@ -2,288 +2,156 @@
 title: Inputs
 layout: page
 nav_order: 4
-parent: v2.0
-permalink: /docs/v2.0/pages/inputs/
+parent: v1.0
+permalink: /docs/v1.0/pages/inputs/
 ---
 
 # {{ page.title }}
 {: .no_toc}
+
+Below is a summary and description of each input parameter.
+
+## Table of contents
+{: .no_toc .text-delta }
 
 1. TOC
 {:toc}
 
 ---
 
-# Overview
-Pipeline parameters can be adjusted using the following methods:
+## All Input Options
 
-1. At the command line using `--{parameter_name}` (e.g., `--input`)
-2. In the `nextflow.config` file
-3. In a JSON file via the `-params-file` parameter
+```groovy
+// Input options
+input                      = "${projectDir}/assets/samplesheet.csv"
+ncbi                       = null
+db                         = null
+push                       = false
 
-It is also possible to pass arguments directly to a pipeline process using the `ext.args` variable in `conf/modules.config` (see example below):
+// QC: Reads & Assembly
+read_qc                    = true
+assembly_qc                = true
+min_contig_len             = 300
+
+// QC: Variant Calling
+max_depth                  = 100
+min_genfrac                = 85
+max_lowcov                 = 5
+max_het                    = 1
+
+// Tree options
+max_ml                     = 500
+min_tree                   = 2
+
+// Reporting options
+strong_link_cutoff         = 10
+inter_link_cutoff          = 50
+partition_threshold        = 100
+max_static                 = 100
+
+// Other options (caution)
+db_info                    = true
+resolve_merged             = true
+run_id                     = null
 ```
-    withName: 'IVAR_CONSENSUS' {
-        ext.args            = "-n 'N' -k"
-        ext.when            = {  }
-        publishDir = [
-            [
-                path: { "${params.outdir}/${meta.id}/assembly/" },
-                pattern: "none",
-                mode: 'copy'
-            ],
-            [
-                path: { "${params.outdir}/${meta.id}/qc" },
-                pattern: "*.csv",
-                mode: 'copy'
-            ]
-        ]
-    }
-```
-
----
-
-# Input Options
 
 ## `--input`
-Path to the samplesheet.
 
-### Example samplesheet
+Path to a comma-separated file containing information about PopPUNK databases or samples. An absolute path to the file should be used.
+
+**PopPUNK database sheet example**
+
+`pp_db_list.csv`:
+
+```csv
+taxa,pp_db
+Acinetobacter_baumannii,abaumannii_db.tar.gz
+Escherichia_coli,ecoli_db.tar.bz2
+Staphylococcus_aureus,staph_db/
+```
+
+**Samplesheet example**
+
 `samplesheet.csv`:
+
+```csv
+sample,taxa,assembly,fastq_1,fastq_2
+sample1,Acinetobacter_baumannii,sample1.fasta,sample1_R1.fastq.gz,sample1_R2.fastq.gz
+sample2,Escherichia_coli,sample2.fasta,sample2_R1.fastq.gz,sample2_R2.fastq.gz
+sample3,Staphylococcus_aureus,sample3.fasta,sample3_R1.fastq.gz,sample3_R2.fastq.gz
 ```
-sample,fastq_1,fastq_2
-sample01,sample01_R1_001.fastq.gz,sample01_R2_001.fastq.gz
-sample02,sample02_R1_001.fastq.gz,sample02_R2_001.fastq.gz
+
+## `--ncbi`
+
+Path to a comma-separated file containing information for samples that should be pulled from NCBI.
+
+```csv
+sample,taxa,assembly,sra
+SAMN12769618,Acinetobacter_baumannii,GCF_008632635.1,SRR11176973
 ```
-
-### Samplesheet columns
-
-{: .note}
-- Required columns: `sample`, and `fastq_1` + `fastq_2` or `sra`
-- All file paths in the samplesheet must be absolute.
-
-|Column Name|Description|
-|:-|:-|
-|`sample`|Sample name|
-|`fastq_1`|Absolute path to the forward (R1) Illumina read file (`.fq` or `.fastq`). Must be supplied with `fastq_2`. Cannot be supplied with `sra` column.|
-|`fastq_2`|Absolute path to the reverse (R2) Illumina read file (`.fq` or `.fastq`). Must be supplied with `fastq_1`. Cannot be supplied with `sra` column.|
-|`assembly`|Absolute path to an existing assembly file (`.fasta` or `.fa`). If provided, assembly will be skipped for this sample.|
-|`taxa`|Taxonomic name of the sample (e.g., `Staphylococcus aureus`). If provided, taxonomic classification will be skipped for this sample.|
-|`sra`|SRA accession number (e.g., `SRR12345678`). Cannot be supplied with `fastq_1` or `fastq_2` columns.|
-|`genbank`|GenBank accession number of a reference genome to use for this sample. Overrides automatic reference selection.|
-|`cluster`|Pre-assigned cluster ID for this sample. If provided, cluster assignment will be skipped for this sample.|
-
-## `--max_reads`
-The maximum number of reads to include in the analysis.
-
-- Options: `0...Inf`
-- Default: `2_000_000`
-
-> Samples with more than this number of reads will be randomly down-sampled using `seqtk sample`. Read counts are based on the sum of the forward and reverse reads.
-
-## `--max_depth`
-The maximum sequencing depth per sample.
-
-- Options: `0...Inf`
-- Default: `100`
-
-> Impacts de novo assembly and variant calling. Samples exceeding this depth will be down-sampled prior to these steps.
-
----
-
-# Database Options
 
 ## `--db`
-Path to the BigBacter surveillance database.
 
-- Default: `bigbacter_db`
-
-> This database stores signatures, cluster assignments, and other persistent outputs across runs.
+Path to the BigBacter database. It is recommended that PopPUNK databases be configured to a single common directory (i.e., the BigBacter database). This database can be set up automatically using the `PREPARE_DB` workflow (`-entry PREPARE_DB`).
 
 ## `--push`
-Whether to push results to the BigBacter database after the run.
 
-- Options: `true`, `false`
-- Default: `false`
+Tells the pipeline whether you want to save (i.e., "push") new samples to the BigBacter database (default: `false`). It is recommended that you check results prior to pushing files. Once confirmed, files can be pushed using `--push true` and `-resume`.
 
-> When enabled, results are written to `--db` so they are included in future runs. Commonly used with `--resume` to push results from a previous run without recomputing them.
+## `--max_depth`
 
----
+Maximum read depth per sample (default: `100`). This is used by Snippy to randomly subsample reads.
 
-# Asset Options
+## `--min_genfrac`
 
-## `--gambit_gdb`
-Path to the GAMBIT database file used for taxonomic classification.
+Minimum percent of the reference genome that a sample must contain for it to be included in the core SNP analysis (default: `85`).
 
-- Default: `https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gdb`
+## `--max_lowcov`
 
-> Used to classify samples when no `taxa` is provided in the samplesheet.
+Maximum percent of low coverage sites allowed for a sample to be included in the core SNP analysis (default: `5`).
 
-## `--gambit_gs`
-Path to the GAMBIT database file used for taxonomic classification.
+## `--max_het`
 
-- Default: `https://storage.googleapis.com/jlumpe-gambit/public/databases/refseq-curated/1.0/gambit-refseq-curated-1.0.gs`
+Maximum percent of heterogeneous sites allowed for a sample to be included in the core SNP analysis (default: `1`). Given that bacteria are haploid, the presence of heterogeneous sites indicates either contamination or unrepresented homologs.
 
-> Used to classify samples when no `taxa` is provided in the samplesheet.
+## `--strong_link_cutoff`
 
-## `--microreact_template`
-Path to the Microreact template JSON file used for visualization.
+SNP distance threshold used to classify strong genomic linkages (default: `10`). This has no impact on core SNP analysis and is only meant to aid interpretation of genetic linkages.
 
-- Default: `${projectDir}/assets/template.microreact`
+## `--inter_link_cutoff`
 
----
+SNP distance threshold used to classify intermediate genomic linkages (default: `50`). This has no impact on core SNP analysis and is only meant to aid interpretation of genetic linkages.
 
-# Clustering Options
+## `--partition_threshold`
 
-## `--clust_dist`
-Distance threshold used to define clusters.
+Number of estimated nucleotide substitutions used to partition samples in maximum likelihood trees using `cutree` and `hclust` (default: `100`).
 
-- Options: `0...1`
-- Default: `0.03`
+## `--max_static`
 
-> Samples with a pairwise distance below this threshold will be assigned to the same cluster.
+Maximum number of samples included in a static image (i.e., `.jpg`). Static images will not be generated for clusters containing more samples than this value.
 
-## `--clust_min_hash_freq`
-Minimum frequency for a hash to be included in the global hash set.
+## `--max_ml`
 
-- Options: `0...1`
-- Default: `0.05`
-
-> Hashes occurring below this frequency across all samples are excluded from the global reference set.
-
-## `--clust_min_hash_frac`
-Minimum fraction of sample hashes that must overlap with the global hash set after filtering.
-
-- Options: `0...1`
-- Default: `0.5`
-
-> Samples falling below this threshold may indicate low-quality or divergent sequences.
-
-## `--clust_ignore_qc`
-Whether to ignore clustering QC results and include all samples regardless of QC status.
-
-- Options: `true`, `false`
-- Default: `false`
-
-> When enabled, samples that would otherwise fail clustering QC are still included in the analysis.
-
-## `--clust_overwrite`
-Whether to overwrite existing signature files for a sample.
-
-- Options: `true`, `false`
-- Default: `false`
-
-> By default, signature files are reused if they already exist in `--db`. Enable this to force regeneration.
-
-## `--clust_plot`
-Whether to create PCoA and Neighbor-joining plots when running floc.
-
-- Options: `true`, `false`
-- Default: `false`
-
-> This can be helpful for interpreting cluster relationships. May take a significant amount of time when there are many samples!
----
-
-# Reference Selection Options
-
-## `--ref_min_contig_len`
-Minimum contig length (bp) allowed in a reference genome.
-
-- Options: `0...Inf`
-- Default: `300`
-
-> Contigs shorter than this value are excluded from the reference prior to analysis.
-
-## `--ref_contig_penalty`
-Penalty applied to references with more contigs during reference selection scoring.
-
-- Options: `0...1`
-- Default: `0.2`
-
-> Higher values more strongly penalize fragmented references. A score of `0` applies no penalty.
-
-## `--ref_ksize`
-K-mer size used when comparing references.
-
-- Options: `0...Inf`
-- Default: `31`
-
-## `--ref_scaled`
-K-mer scaling factor used when comparing references.
-
-- Options: `0...Inf`
-- Default: `100`
-
-> Higher values reduce memory usage at the cost of resolution. Used by the sourmash sketching step.
-
----
-
-# Variant Calling Options
-
-## `--min_genome_fraction`
-Minimum fraction of the reference genome that must be covered for a sample to be included in core genome analysis.
-
-- Options: `0...1`
-- Default: `0.8`
-
-> Samples falling below this threshold are excluded from variant calling and downstream phylogenetic analysis.
-
-## `--min_core_fraction`
-Minimum fraction of samples that must have coverage at a reference site for it to be included in the core genome.
-
-- Options: `0...1`
-- Default: `0.9`
-
-> Sites with coverage in fewer samples than this threshold are excluded from the core genome alignment.
-
-## `--mask_recomb`
-Whether to perform recombination masking in addition to standard variant detection.
-
-- Options: `true`, `false`
-- Default: `true`
-
-> When enabled, recombinant regions identified by Gubbins are masked prior to phylogenetic analysis.
-
-## `--keep_bam`
- Keep the bam file created during variant calling.
-
-- Options: `true`, `false`
-- Default: `false`
-
-> Enabling will dramatically increase database size.
-
----
-
-# Phylogenetic Analysis Options
+Maximum number of samples that a cluster can contain for maximum likelihood tree generation (default: `500`). If the number of samples exceeds this threshold, BigBacter will switch to the neighbor-joining approach.
 
 ## `--min_tree`
-Minimum number of samples required in a core genome analysis to produce a phylogenetic tree.
 
-- Options: `2...Inf`
-- Default: `2`
+Minimum number of samples in a cluster for a tree to be produced, excluding the reference genome (default: `2`). This must be greater than 2 or IQTREE will fail.
 
-> Must be greater than 1. Clusters with fewer samples than this value will not have a tree generated.
+## `--db_info`
 
-## `--strong_link_threshold`
-Upper nucleotide distance threshold for defining a strong linkage between two samples.
+Provides a summary of your BigBacter database (default: `true`). A short summary will be printed to the screen upon completion of the pipeline and a full summary can be found in the run directory (e.g., `${timestamp}-db-info.csv`).
 
-- Options: `0...Inf`
-- Default: `10`
+## `--resolve_merged`
 
-> Sample pairs with SNP distances from `0` to this value are classified as strongly linked.
+Whether merged PopPUNK clusters should be resolved (default: `true`).
 
-## `--inter_link_threshold`
-Upper nucleotide distance threshold for defining an intermediate linkage between two samples.
+{: .warning }
+> Only turn this off if you know what you are doing.
 
-- Options: `0...Inf`
-- Default: `50`
+## `--run_id`
 
-> Sample pairs with SNP distances from `--strong_link_threshold + 1` to this value are classified as intermediately linked.
+Will be used in place of the timestamp ID.
 
-## `--partition_distance`
-Nucleotide distance threshold for grouping samples into tree partitions.
-
-- Options: `0...Inf`
-- Default: `100`
-
-> Samples within this SNP distance of one another are grouped into the same partition for visualization.
+{: .warning }
+> Misuse could lead to database corruption.
