@@ -1,233 +1,178 @@
 ---
-title: Overview
+title: Pipeline Overview
 layout: page
 nav_order: 3
-parent: v2.0
-permalink: /docs/v2.0/pages/overview/
+parent: v1.0
+permalink: /docs/v1.0/pages/pipelineoverview/
 ---
 
 # {{ page.title }}
-{: .no_toc }
+{: .no_toc}
+
+## Table of contents
+{: .no_toc .text-delta }
 
 1. TOC
 {:toc}
 
 ---
 
-## Flowchart
-![](../../media/bigbacter-v2_0-nw-page.png)
-
-# What is BigBacter?
-
-BigBacter is a Nextflow pipeline for routine bacterial genomic surveillance. It accepts raw reads or assemblies, clusters samples by genomic similarity, constructs core genome alignments, and produces phylogenetic trees and pairwise distance matrices - all in an iterative, database-backed workflow designed to grow with your dataset over time.
-
-## Key Features
-
-<div style="padding: 1em; margin: 1em 0;">
-
-🧬 <strong>Iterative clustering</strong> - cluster assignments stay consistent across runs using a per-sample sourmash database that expands automatically with each new submission<br>
-🧬 <strong>Soft-core phylogenomics</strong> - retains substantially more phylogenetic signal than strict-core approaches by tolerating a configurable level of missing data<br>
-🧬 <strong>Automated reference selection</strong> - selects the most representative assembly per cluster using k-mer containment and assembly quality scoring; reuses the same reference on subsequent runs for consistent SNP distances<br>
-🧬 <strong>Dual distance metrics</strong> - reports both core-genome SNP distances and whole-genome containment scores to capture both SNP-level and accessory genome variation<br>
-
-</div>
-
----
-
-# Inputs
-
-## Read Processing
-
-Reads can be supplied as FASTQ files (`fastq_1` / `fastq_2` columns) or downloaded automatically from NCBI using an SRA accession (`sra` column). Files exceeding the maximum read count set by `max_reads` (default: `2_000_000`) will be randomly subsampled using [seqtk](https://github.com/lh3/seqtk). All reads are then quality filtered using [fastp](https://github.com/opengene/fastp). If no reads are supplied, they will be derived from the genome assembly - read more [here](https://github.com/tseemann/snippy#finding-snps-between-contigs).
-
-{: .important }
-SNPs called from genome assemblies are considerably less reliable than those called from reads ([Wick et al., 2025](https://www.microbiologyresearch.org/content/journal/acmi/10.1099/acmi.0.001025.v3)). Genome assemblers prioritize contiguity and completeness over base-level accuracy, meaning assembly errors can be indistinguishable from true variants. Unlike read-based variant calling, there is no per-site depth or quality information available to scrutinize the confidence of a call. Samples where reads are unavailable should be interpreted with caution, particularly in outbreak investigations where a small number of SNPs may be the basis for epidemiological conclusions.
-
-## Genome Assembly
-
-Genome assemblies can be supplied as FASTA files (`assembly` column) or downloaded automatically from NCBI using a GenBank accession (`genbank` column). If no assembly is supplied, one will be created using [shovill](https://github.com/tseemann/shovill).
-
-## Taxonomy
-
-Sample taxonomy is supplied via the `taxa` column. Samples are split into taxon-specific groups prior to cluster and core genome analysis. Species-level classification is appropriate for most cases - e.g., *Escherichia coli*.
-
-If no taxonomy is provided, BigBacter will automatically assign species-level taxonomy using [GAMBIT](https://github.com/jlumpe/gambit). GAMBIT uses k-mer based genome signatures to rapidly classify bacterial isolates. Automatically assigned taxonomy is subject to the limitations of GAMBIT's reference database - for novel or poorly represented species, manual review of the assigned taxonomy is recommended before proceeding.
-
-{: .important }
-BigBacter does not perform extensive quality checks on genome assemblies or taxonomy assignments. It is strongly recommended that assemblies and taxonomy are generated and validated upstream using a dedicated workflow with robust QC - e.g., [PHoeNIx](https://github.com/CDCgov/phoenix), [TheiaProk](https://public-health-bacterial-genomics-theiagen.readthedocs.io/en/latest/theiaprok.html), or [Bactopia](https://github.com/bactopia/bactopia).
-
----
-
-# Clustering
-
-Samples are clustered within each taxonomic group using [floc](https://github.com/DOH-JDJ0303/floc). Floc was developed at WA PHL for iterative sample clustering, accomplished using the sourmash [containment method](https://sourmash.readthedocs.io/en/latest/api.html#sourmash.MinHash.contained_by). This allows for a rough estimation of how much of the genome is shared between samples or between samples and existing clusters.
-
-## How Clustering Works
-
-Each time BigBacter is run, newly assigned cluster information is saved to a database. The next time BigBacter is run for the same species, this database is automatically loaded so that new samples can be placed relative to all previously observed clusters. This iterative approach means that cluster assignments remain consistent over time.
-
-## Database Design
-
-The floc database is intentionally simple compared to PopPUNK databases. Rather than storing cluster information in a single monolithic structure, floc saves data on a **per-sample basis**. This has several practical advantages:
-
-- Individual samples can be **removed** from the database without rebuilding it from scratch (e.g., to exclude a contaminated or misidentified sample)
-- Existing entries can be **modified** independently
-- The database grows incrementally with each run, requiring no upfront preparation
-
-A key consequence of this design is that BigBacter can be run with **as little as a single sample** for a given species. Databases are created on the fly during the first run and expanded with each subsequent run. This contrasts with PopPUNK, which requires a pre-built reference database to be created *a priori* before any samples can be assigned to clusters - a significant barrier when working with less common or emerging pathogens.
-
-[Miller et al. 2026](https://millerkrista.github.io/_pages/aphl26poster_supp_materials.html) found that floc generally performs as well as or better than PopPUNK for cluster assignments, supporting the decision to adopt it as the clustering backbone for BigBacter v2.
-
-{: .important }
-> Databases created using BigBacter v1 are not compatible with v2.
-
-## Visualizing Cluster Relationships
-
-A neighbor-joining tree can be generated using the `--clust_plot true` parameter, allowing for investigation of overall cluster relationships across samples. Note that this tree is built from containment distances rather than sequence alignments, so the topology should not be interpreted as reflecting evolutionary history or directionality - branch lengths represent a non-directional magnitude of genomic divergence. See the example below:
-
-<iframe
-  src="{{ site.baseurl }}/assets/example_output/ecoli/nj_tree.html"
-  width="100%"
-  height="600px"
-  frameborder="0"
-  style="border: 1px solid #ccc; border-radius: 4px;"
-  allowfullscreen>
-</iframe>
-
----
-
-# Core Genome Analysis
-
-## Reference Selection
-
-A reference genome is automatically selected for each cluster using [`bigbacter_select_ref.py`](https://github.com/DOH-JDJ0303/bigbacter-nf/blob/dev_2.0/bin/bigbacter_select_ref.py). When a cluster contains multiple assemblies, the script evaluates each one and selects the candidate that best represents the full genomic diversity of the group.
-
-The selection process works as follows:
-
-1. Contigs shorter than a minimum length (default: `300` bp) are filtered out.
-2. A [MinHash sketch](https://sourmash.readthedocs.io/en/latest/) is built for each assembly using sourmash (default: `ksize=31`, `scaled=100`).
-3. A **global sketch** is created by merging all per-assembly sketches, representing the total k-mer diversity across all candidates.
-4. Each assembly is scored using the formula:
-
-   ```
-   score = containment × length / (n_contigs ^ penalty)
-   ```
-
-   Where `containment` measures what fraction of the global k-mer diversity is captured by the assembly, `length` rewards more complete assemblies, and the contig `penalty` (default: `0.2`) discourages fragmented assemblies. The assembly with the highest score is selected as the reference.
-
-5. The selected reference is written to `ref.fa.gz` along with a metadata file (`ref.json`) recording the sample name, genome length, and contig count.
-
-The selected reference is **saved to the BigBacter database** for the cluster. On subsequent runs, if a reference already exists in the database for a given cluster, it is reused rather than re-selected. This ensures that all samples within a cluster are always mapped against the same reference, keeping SNP distances and alignments consistent over time. A new reference is only selected when a cluster is being processed for the first time.
-
-## Defining the Core Genome
-
-Core genome analysis is performed using [polycore](https://github.com/DOH-JDJ0303/polycore). The process begins by mapping all samples in the cluster against the selected reference using [Snippy](https://github.com/tseemann/snippy), which generates per-sample alignments.
-
-Rather than using a strict core - which requires data to be present in **every** sample at every site - BigBacter uses a **soft core** approach. As described by [Taouk et al. (2025)](https://www.microbiologyresearch.org/content/journal/mgen/10.1099/mgen.0.001346), strict cores can shrink dramatically as sample size and genome diversity increase, discarding potentially informative data. A soft core tolerates some missing data by applying a threshold: a site is included in the core genome if data are present in at least *N*% of samples (configurable; default targets the soft core). This preserves substantially more phylogenetic signal.
-
-To assist the impact of adding each sample to the core genome analysis, polycore adds samples **progressively by genome fraction size** - larger, more complete assemblies are incorporated first. Samples that fall below the minimum genome size threshold are automatically excluded from core genome analysis, preventing low-quality assemblies from artificially eroding the core.
-
-<iframe
-  src="{{ site.baseurl }}/assets/example_output/ecoli/1780330154-Escherichia_coli-3_cg-plot.html"
-  width="100%"
-  height="600px"
-  frameborder="0"
-  style="border: 1px solid #ccc; border-radius: 4px;"
-  allowfullscreen>
-</iframe>
-
-The per-sample SNP files generated by Snippy are **saved to the BigBacter database** on a per-sample basis. On subsequent runs, previously processed samples do not need to be re-mapped - their SNP files are retrieved directly from the database and combined with any newly mapped samples before the core genome is defined. This makes incremental runs substantially faster and means that adding new samples to an existing cluster only requires mapping the new samples rather than reprocessing the entire cluster from scratch.
-
-## Calling Variants
-
-Variants are called by polycore directly from the soft-core genome alignment, producing a SNP alignment used for all downstream phylogenetic and distance analyses.
-
-For clusters large enough to warrant recombination masking, a **masked alignment** is also generated using [Gubbins](https://github.com/nickjcroucher/gubbins). Gubbins identifies genomic regions consistent with horizontal gene transfer or recombination and masks them, so that inferred phylogenies and SNP distances reflect vertical inheritance rather than recombination noise.
-
----
-
-# Phylogenetic Analysis
-
-## Core SNP Tree
-
-A maximum likelihood tree is inferred using [IQ-TREE2](http://www.iqtree.org/) under the **GTR+I+G** model (general time reversible with a proportion of invariable sites and a discrete Gamma model for rate variation), with 1,000 rounds of rapid bootstrapping. While IQ-TREE2 supports automated model selection via ModelFinder, this can be prohibitively slow for routine surveillance. A standardized model was therefore selected based on published [recommendations](https://www.nature.com/articles/s41467-019-08822-w).
-
-**Ascertainment bias correction** is applied via `-fconst` using the count of constant sites determined by polycore. This corrects for the fact that only variable sites are included in the SNP alignment, which would otherwise distort branch length estimates. Branch lengths are subsequently rescaled from substitutions per site to **estimated nucleotide substitutions** using the reference genome length.
-
-To provide interpretable resolution across multiple scales of relatedness, trees are **partitioned into sub-trees** based on estimated pairwise nucleotide substitutions using DBSCAN (default threshold: `100` substitutions). This allows fine-scale outbreak investigation and broader population-level context to be viewed together.
-
-<img src="{{ site.baseurl }}/assets/example_output/ecoli/ml_tree.svg"
-     alt="SNP Tree"
-     style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; max-width: 100%;">
-
-## Pairwise Distances
-
-Two complementary distance metrics are calculated for each cluster.
-
-**Pairwise SNP distances** are computed by polycore from the soft-core genome alignment. These provide a core-genome view of genomic similarity and are the primary metric for outbreak detection and cluster confirmation.
-
-<img src="{{ site.baseurl }}/assets/example_output/ecoli/snp_dist.png"
-     alt="SNP Matrix"
-     style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; max-width: 100%;">
-
-**Pairwise percent average divergence** is calculated from the average containment distance (floc) using the formula below:
-
-<div class="formula">
-  <span class="lhs">% Avg Divergence</span>
-  <span class="eq">=</span>
-  <span class="num">100</span>
-  <span class="op">&times;</span>
-  <span class="group">
-    <span class="paren">(</span>
-    <span class="inner">1 &minus; <span class="var">Avg Containment</span></span>
-    <span class="paren">)</span>
-  </span>
-</div>
-
-<style>
-  .formula {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    font-family: Georgia, "Times New Roman", serif;
-    color: #1a1a1a;
-    padding: 2rem;
-  }
-  .formula .lhs,
-  .formula .var { font-style: italic; }
-  .formula .lhs { font-size: 22px; }
-  .formula .eq,
-  .formula .op { font-size: 24px; color: #666; }
-  .formula .num,
-  .formula .inner { font-size: 22px; }
-  .formula .group { display: inline-flex; align-items: center; }
-  .formula .paren { font-size: 40px; color: #666; line-height: 1; }
-  .formula .inner { margin: 0 6px; }
-</style>
-
-This metric extends beyond the core genome to capture **accessory genome** differences - structural variation, gene gain/loss, and mobile elements that SNP-based methods miss entirely. The two metrics therefore complement each other and should be interpreted together.
-
-<img src="{{ site.baseurl }}/assets/example_output/ecoli/div_dist.png"
-     alt="Divergence Matrix"
-     style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; max-width: 100%;">
-
-{: .important }
-Containment distances are based on exact k-mer matches, which can cause them to both **overestimate** accessory differences in variable core regions and **underestimate** accessory differences in repetitive regions or paralogs. Interpret with caution!
-
----
-
-# Summary Report
-
-Results are summarized at the taxon-cluster level in an interactive [Microreact](https://microreact.org) report. Each report includes:
-
-- A maximum likelihood phylogenetic tree with bootstrap support
-- Core and accessory genome pairwise distance matrices
-- A genomic linkage summary for rapid identification of closely related samples
-- A progressive core genome degradation plot illustrating how the soft-core genome shrinks as samples are added, which can be used to assess the impact of low-quality assemblies on the analysis
-
-Want to see an example? <a href="{{ site.baseurl }}/assets/example_output/ecoli/1780330154-Escherichia_coli-3.microreact" download target="_blank" rel="noopener">📄 Download this report</a>, then upload it to <a href="https://microreact.org/upload" target="_blank" rel="noopener">microreact.org/upload</a> to view it.
+![BigBacter v1.0 flowchart](https://raw.githubusercontent.com/DOH-JDJ0303/bigbacter-nf/4aced918242091fe4a8e600166f0b9ec51e3b56a/docs/images/BigBacter_Flowchart_v1.0.png)
+
+## 1. BigBacter Database
+
+BigBacter facilitates genomic surveillance by maintaining a database of samples. This database is searched each time you run the pipeline, and samples that closely match current samples are automatically pulled from the database and included in your analysis.
+
+Below is a basic diagram of how the BigBacter database is structured:
+
+```
+${db}
+└── ${taxa}
+    ├── pp_db
+    │   └── ${timestamp}.tar.gz
+    └── clusters
+        └── ${cluster}
+            ├── assembly
+            │   └── ${sample}.fa.gz
+            ├── ref
+            │   └── ref.fa.gz
+            └── snippy
+                └── ${sample}.tar.gz
+```
+
+Each component is described in greater detail below.
 
 {: .note }
-For a full description of report contents and how to interpret them, see the [Outputs](../outputs/results/) page.
+> Files are saved to the BigBacter database even if they fail QC.
+
+### 1.1 PopPUNK Database
+
+`db/${taxa}/pp_db/${timestamp}.tar.gz`
+
+PopPUNK is used to cluster samples into closely related groups prior to core SNP analysis (learn more [here](https://poppunk.readthedocs.io/en/latest/index.html)). A PopPUNK database must be configured for each species you plan to analyze (see [Full Instructions]({{ site.baseurl }}/docs/v1.0/pages/fullinstructions/#3-preparing-poppunk-databases)). Upon configuration, BigBacter will save a `tar.gz` compressed version of your PopPUNK database to a species-specific directory. This database will be updated each time the species is run through BigBacter and the new version will be named with an epoch timestamp. This timestamp is intended as a failsafe in case you ever want to go back to an earlier version of the PopPUNK database. BigBacter will always select the PopPUNK database with the most recent timestamp (or largest number).
+
+{: .highlight }
+> It is recommended that you configure all PopPUNK databases to a common directory (specified with `--db`). This will allow you to include multiple species on a single run.
+
+### 1.2 Reference Genomes
+
+`db/${taxa}/clusters/${cluster}/ref/ref.fa.gz`
+
+A reference assembly is selected for each PopPUNK cluster from the input assemblies. This reference is saved to the cluster-specific directory within the BigBacter database and used for all future core SNP analyses for that species-cluster.
+
+{: .highlight }
+> You can ensure that a specific reference genome is used by supplying it as the only sample for that species-cluster on the BigBacter run. Alternatively, you can add it directly to the BigBacter database, assuming you know the PopPUNK cluster number.
+
+{: .warning }
+> We have observed poor performance when using GenBank assemblies (SKESA) for references, resulting in multiple samples failing QC due to low genome fraction.
+
+### 1.3 SNP Files
+
+`db/${taxa}/clusters/${cluster}/snippy/${sample}.tar.gz`
+
+SNP files generated by Snippy are saved as `tar.gz` compressed directories for each sample in their assigned species-cluster directory. These files are used to build the core genome each time samples belonging to this species-cluster are identified. Storing SNP files in this manner is highly efficient because it:
+
+1. avoids having to re-align reads each time the core genome is constructed (which is the most computationally intensive part);
+2. significantly reduces the size of the files being stored (a VCF file is 1/10th the size of raw read files).
+
+That said, these files are specific to the reference used to create them, which means you have to start from scratch any time you want to switch reference genomes.
+
+### 1.4 Assembly Files
+
+`db/${taxa}/clusters/${cluster}/assembly/${sample}.fa.gz`
+
+A copy of each assembly file is saved to the database for future use. These are not currently used by the pipeline but will have function in future versions of BigBacter.
+
+### 1.5 Pushing Database Files
+
+It is recommended that you check your BigBacter results prior to pushing the results. Once you have confirmed you are satisfied with the results, you can push them using the `--push true -resume` options.
+
+## 2. Input Quality Control
+
+BigBacter was originally designed to use trimmed reads generated by bacterial analysis pipelines, like PHoeNIx. However, the option to download reads and assemblies directly from NCBI introduced a need to perform basic input QC. BigBacter uses [fastp](https://github.com/OpenGene/fastp) and [seqtk](https://github.com/lh3/seqtk) to accomplish this. You can adjust the minimum contig length filtered by seqtk using the `--min_contig_len` option. You can skip input QC using `--assembly_qc false` and/or `--read_qc false`, though this is not recommended.
+
+{: .note }
+> Future versions of BigBacter will likely include a basic genome assembly option to overcome the issues observed when using NCBI assemblies (SKESA) as references.
+
+## 3. Sample Clustering
+
+BigBacter clusters samples in two stages:
+
+1. By the **taxonomy** name in the `samplesheet.csv`.
+2. By the cluster number determined by **PopPUNK**.
+
+{: .note }
+> BigBacter automatically resolves any clusters that are merged by PopPUNK by selecting the individual cluster that contains the closest matching isolate, as determined using the Jaccard distance. You can turn off this feature using `--resolve_merged false`, but it is **not recommended**.
+
+## 4. Core SNP Analysis
+
+### 4.1 SNP Calling with Snippy
+
+Core SNP analysis is accomplished using [Snippy](https://github.com/tseemann/snippy). While there are many bacterial SNP calling tools available, Snippy remains one of the fastest and most reliable. It is also very convenient because it outputs data in a format that facilitates incremental analyses — which is basically the whole idea behind bacterial genomic surveillance.
+
+Core SNPs are called using a three-stage process:
+
+1. Individual SNPs are called for each sample using `snippy` and the cluster-specific reference assembly. The results are saved as `tar.gz` compressed archives and pushed to the BigBacter database for future use.
+2. Core SNPs are called from the individual SNP calls using `snippy-core`.
+3. Low quality samples are removed from the analysis and step 2 is performed again.
+
+Samples are considered low quality if they fail one of the following QC thresholds:
+
+| QC Metric | Default Threshold | Parameter |
+|:---|:---|:---|
+| Minimum Reference Genome Fraction | 85% | `--min_genfrac` |
+| Maximum Heterogeneous Regions | 5% | `--max_het` |
+| Maximum Low Coverage Regions | 1% | `--max_lowcov` |
+
+These QC metrics are designed to minimize core genome shrinkage. You can learn more about each metric on the [Inputs]({{ site.baseurl }}/docs/v1.0/pages/inputs/) page.
+
+### 4.2 Recombination Detection with Gubbins
+
+The cleaned full alignment file generated by Snippy is provided to Gubbins and recombination is detected. Gubbins produces a tree during this process; however, this tree is not used in the analysis, as it was found to be inconsistent.
+
+### 4.3 Pairwise SNP Differences with snp-dists
+
+Pairwise SNP differences are determined using [snp-dists](https://github.com/tseemann/snp-dists). This is performed for all samples using the clean Snippy alignment and any clusters that have at least one SNP and/or more than 2 samples using the Gubbins core alignment.
+
+## 5. Phylogenetic Trees
+
+A core SNP tree is generated for clusters containing at least 2 samples that pass QC. Trees are built using the maximum likelihood approach by default; however, this can be computationally intensive for large clusters, so BigBacter comes with an option to automatically switch to a much faster (but less reliable) neighbor-joining approach (controlled using `--max_ml`; default: 500 samples).
+
+Below is more information about each tree building approach.
+
+### 5.1 Maximum Likelihood Trees using IQTREE2
+
+When below the `--max_ml` threshold, a maximum likelihood tree will be generated via [IQTREE2](https://github.com/iqtree/iqtree2) using the general time reversible (GTR) model allowing for a proportion of invariable sites (+I) with a discrete Gamma model (+G) and 1000 rounds of rapid bootstrapping. While IQTREE2 has an option for automated model selection, this process is normally very slow. For this reason, a more standardized model was selected based on the recommendations in this [paper](https://doi.org/10.1038/s41467-019-08822-w). Ascertainment bias is corrected via `-fconst` using constant sites determined via [snp-sites](https://github.com/sanger-pathogens/snp-sites), and branch lengths are converted to estimated nucleotide substitutions using the reference genome size. Maximum likelihood trees are split into partitions using the R packages `cutree` and `hclust` based on the estimated nucleotide threshold set using `--partition_threshold` (default 100).
+
+### 5.2 Neighbor-Joining Trees via RapidNJ
+
+When above the `--max_ml` threshold, a neighbor-joining tree will be generated via [RapidNJ](https://github.com/somme89/rapidNJ) (hey, at least it's not UPGMA). Branch lengths are not converted to estimated nucleotide substitutions, negative branch lengths are set to zero, and a corrected tree is saved (`${timestamp}-${species}-${cluster}-core.corrected.nwk`). This approach should only be used if you do not have the computational power to use the maximum likelihood approach.
+
+## 6. Accessory Genome Analysis
+
+Accessory distances are calculated by PopPUNK during cluster assignment. For more information on how to interpret these distances, read the [PopPUNK manuscript](https://genome.cshlp.org/content/29/2/304). These distances are expected to be the lower floor of true accessory differences. This is because k-mer based approaches do not take into account synteny and struggle with repetitive regions. That said, this provides a rapid approach to go beyond the core genome and can indicate when further analysis using more robust accessory genome analyses may be warranted.
+
+{: .note }
+> This will likely be replaced by pangenome-based accessory gene analysis in future versions of BigBacter.
+
+## 7. Figure Generation
+
+BigBacter can create both static images (`.jpg`) and dynamic images, using Microreact files.
+
+### 7.1 Microreact Files
+
+BigBacter creates up to two Microreact files (`.snippy.microreact` and `.gubbins.microreact`) for each species-cluster containing 2 or more samples using custom R and Bash scripts. These files contain the core SNP tree, core SNP matrix, accessory distance matrix, and the run summary. Microreact files can be viewed at [https://microreact.org/upload](https://microreact.org/upload).
+
+### 7.2 Static Images
+
+Static images are saved for all species-clusters containing at least 2 samples but fewer than the threshold specified by `--max_static` (default 100) using custom R scripts.
+
+{: .warning }
+> Increasing `--max_static` may cause R to fail when attempting to create static images.
+
+{: .highlight }
+> Keep your sample names below 20 characters to avoid figure formatting issues.
+
+## 8. Run Summary
+
+A tabulated summary is generated for each BigBacter run. This contains clustering information, sample quality results, and a simple linkage interpretation guide. This summary is generated using custom R scripts.
