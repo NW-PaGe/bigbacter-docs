@@ -2,14 +2,14 @@ title: BigBacter Docs
 description: Documentation for the BigBacter pipeline
 theme: just-the-docs
 
-url: https://github.com/waphl-bioinformatics/bigbacter-docs
+url: https://github.com/nw-page/bigbacter-docs
 
 baseurl: "/bigbacter-docs"
 
 favicon_ico: "/assets/media/bigbacter_logo.ico"
 
 aux_links:
-  BigBacter GitHub: https://github.com/DOH-JDJ0303/bigbacter-nf
+  BigBacter GitHub: https://github.com/nw-page/bigbacter
 
 callouts:
   note:
