@@ -66,8 +66,10 @@ ${outdir}/
 │   │   └── cluster
 │   │       ├── clusters.csv
 │   │       └── global_containment.csv
-│   └── multiqc
-│       └── multiqc_report.html
+│   ├── multiqc
+│   │   └── multiqc_report.html
+│   ├── ${timestamp}.csv
+│   └── ${timestamp}.masked.csv
 └── pipeline_info
     └── ...
 ```
@@ -180,7 +182,10 @@ Pairwise MinHash and core SNP distance matrices are published per cluster. Files
 | `*_snp-dist.csv` | Pairwise core SNP distances |
 
 # Summary
-A per-cluster summary table combining cluster assignments, QC metrics, and SNP distances is published per cluster. Files with `.masked` in the filename are produced using the recombination-masked alignment from Gubbins.
+Summary tables combining cluster assignments, QC metrics, and SNP distances are produced at two levels: per cluster and per run. Both levels share the same columns (see [Summary Columns](#summary-columns)). Files with `.masked` in the filename are produced using the recombination-masked alignment from Gubbins.
+
+## Cluster Summary
+A per-cluster summary table is published within each cluster subdirectory.
 ```bash
 │   └── summary
 │       ├── ${timestamp}-${taxa}-${cluster}_summary.csv
@@ -189,7 +194,44 @@ A per-cluster summary table combining cluster assignments, QC metrics, and SNP d
 
 | File | Description |
 |------|-------------|
-| `*_summary.csv` | Per-sample summary including cluster assignment, core genome size, and closest neighbor |
+| `*_summary.csv` | Per-sample summary for all samples in a single cluster, **without** recombination masked |
+| `*_summary.masked.csv` | Per-sample summary for all samples in a single cluster, **with** recombination masked |
+
+
+## Run Summary
+A run-level summary table is published at the top of the run directory. It combines the cluster summaries from every taxon and cluster included in the run.
+```bash
+│   ├── ${timestamp}.csv
+│   └── ${timestamp}.masked.csv
+```
+
+| File | Description |
+|------|-------------|
+| `${timestamp}.csv` | Per-sample summary for all taxa and clusters included in the run, **without** recombination masked |
+| `${timestamp}.masked.csv` | Per-sample summary for all taxa and clusters included in the run, **with** recombination masked |
+
+## Summary Columns
+The cluster-level and run-level summary files contain the following columns.
+
+| Column | Description |
+|--------|-------------|
+| `id` | Sample identifier (same as supplied in samplesheet) |
+| `run` | Run timestamp (Unix time) associated with the sample |
+| `status` | Whether the sample was added in the current run (`new`) or already existed in the BigBacter database (`old`) |
+| `included` | Whether the sample was included in the cluster analysis (`TRUE`/`FALSE`). Samples are excluded if their genome fraction falls below [`min_genome_fraction`](../../inputs/#--min_genome_fraction).|
+| `taxa` | Taxon assigned to the sample (from samplesheet or `GAMBIT`) |
+| `cluster` | Cluster assigned to the sample within its taxon (from samplesheet or `floc`) |
+| `strong_links` | Samples genetically linked to this sample within the cluster, listed as colon-separated sample pairs. Linkages based on [`strong_link_threshold`](../../inputs/#--strong_linkage_threshold). |
+| `inter_links` | Samples linked to this sample from other clusters, listed as colon-separated sample pairs. Linkages based on [`inter_link_threshold`](../../inputs/#--inter_linkage_threshold) |
+| `genome_fraction` | Fraction of the reference genome length with called bases, calculated as (`length` − `missing`) / `length` |
+| `core_fraction` | Fraction of the core genome that remains after this sample is added to the analysis. This value is used to create the "progressive core genome" plot |
+| `length` | Length of the reference genome in base pairs. Will be the same for all samples in a cluster. |
+| `masked` | Number of sites masked in the sample |
+| `missing` | Number of sites with no base call (e.g., insufficient coverage) |
+| `mixed` | Number of sites with mixed or heterozygous base calls |
+| `variants` | Number of variant sites relative to the reference |
+| `recomb_masked` | Whether recombination masking with Gubbins was applied (`TRUE`/`FALSE`) |
+| `partition` | Partition assigned to the sample within the cluster. _NOTE: Unlike clusters, which are stable between runs, partitions are subject to change depending on which samples are included in the analysis!_|
 
 # Phylogeny
 A maximum likelihood phylogenetic tree is produced per cluster for clusters with sufficient samples. Files with `.masked` in the filename are produced using the recombination-masked alignment from Gubbins.
