@@ -218,11 +218,11 @@ The cluster-level and run-level summary files contain the following columns.
 | `id` | Sample identifier (same as supplied in samplesheet) |
 | `run` | Run timestamp (Unix time) associated with the sample |
 | `status` | Whether the sample was added in the current run (`new`) or already existed in the BigBacter database (`old`) |
-| `included` | Whether the sample was included in the cluster analysis (`TRUE`/`FALSE`). Samples are excluded if their genome fraction falls below [`min_genome_fraction`](../../inputs/#--min_genome_fraction).|
+| `included` | Whether the sample was included in the cluster analysis (`TRUE`/`FALSE`). Samples are excluded if their genome fraction falls below [`min_genome_fraction`](../inputs/#--min_genome_fraction).|
 | `taxa` | Taxon assigned to the sample (from samplesheet or `GAMBIT`) |
 | `cluster` | Cluster assigned to the sample within its taxon (from samplesheet or `floc`) |
-| `strong_links` | Samples genetically linked to this sample within the cluster, listed as colon-separated sample pairs. Linkages based on [`strong_link_threshold`](../../inputs/#--strong_linkage_threshold). |
-| `inter_links` | Samples linked to this sample from other clusters, listed as colon-separated sample pairs. Linkages based on [`inter_link_threshold`](../../inputs/#--inter_linkage_threshold) |
+| `strong_links` | Samples genetically linked to this sample within the cluster, listed as colon-separated sample pairs. Linkages based on [`strong_link_threshold`](../inputs/#--strong_linkage_threshold). |
+| `inter_links` | Samples linked to this sample from other clusters, listed as colon-separated sample pairs. Linkages based on [`inter_link_threshold`](../inputs/#--inter_linkage_threshold) |
 | `genome_fraction` | Fraction of the reference genome length with called bases, calculated as (`length` − `missing`) / `length` |
 | `core_fraction` | Fraction of the core genome that remains after this sample is added to the analysis. This value is used to create the "progressive core genome" plot |
 | `length` | Length of the reference genome in base pairs. Will be the same for all samples in a cluster. |
