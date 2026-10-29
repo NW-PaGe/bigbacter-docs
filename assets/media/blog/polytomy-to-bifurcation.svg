@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 360" width="780" height="360" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-labelledby="title desc">
+  <title id="title">Polytomy in BBv1 becoming a bifurcation in BBv2</title>
+  <desc id="desc">Two versions of the same tree. In BBv1, samples A, B and C all branch from a single node (a polytomy). In BBv2, A and B are joined by a very short extra branch, turning the polytomy into a bifurcation. The extra branch is less than one substitution long.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="780" height="360" rx="12" fill="#ffffff"/>
+
+  <!-- ===== Left panel: BBv1 ===== -->
+  <rect x="16" y="16" width="364" height="328" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="36" y="46" font-size="17" font-weight="700" fill="#0f172a">BBv1</text>
+  <text x="84" y="46" font-size="13" fill="#475569">core genome = 100% of samples</text>
+
+  <g stroke="#1e293b" stroke-width="3" stroke-linecap="round" fill="none">
+    <!-- root -->
+    <line x1="60" y1="140" x2="60" y2="270"/>
+    <line x1="60" y1="140" x2="180" y2="140"/>
+    <line x1="60" y1="270" x2="300" y2="270"/>
+    <!-- polytomy node -->
+    <line x1="180" y1="90" x2="180" y2="190"/>
+    <line x1="180" y1="90" x2="300" y2="90"/>
+    <line x1="180" y1="140" x2="300" y2="140"/>
+    <line x1="180" y1="190" x2="300" y2="190"/>
+  </g>
+  <circle cx="180" cy="140" r="16" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-dasharray="4 3"/>
+  <circle cx="180" cy="140" r="5" fill="#c2410c"/>
+
+  <g font-size="14" fill="#0f172a">
+    <text x="310" y="95">Sample A</text>
+    <text x="310" y="145">Sample B</text>
+    <text x="310" y="195">Sample C</text>
+    <text x="310" y="275">Sample D</text>
+  </g>
+
+  <text x="36" y="312" font-size="13" font-weight="700" fill="#c2410c">Polytomy</text>
+  <text x="36" y="330" font-size="13" fill="#334155">A, B and C all split from one node.</text>
+
+  <!-- ===== Right panel: BBv2 ===== -->
+  <rect x="400" y="16" width="364" height="328" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="420" y="46" font-size="17" font-weight="700" fill="#0f172a">BBv2</text>
+  <text x="468" y="46" font-size="13" fill="#475569">core genome ≥ 90% of samples</text>
+
+  <g stroke="#1e293b" stroke-width="3" stroke-linecap="round" fill="none">
+    <!-- root -->
+    <line x1="444" y1="152" x2="444" y2="270"/>
+    <line x1="444" y1="152" x2="564" y2="152"/>
+    <line x1="444" y1="270" x2="684" y2="270"/>
+    <!-- node joining (A,B) and C -->
+    <line x1="564" y1="115" x2="564" y2="190"/>
+    <line x1="564" y1="190" x2="684" y2="190"/>
+    <!-- new node joining A and B -->
+    <line x1="578" y1="90" x2="578" y2="140"/>
+    <line x1="578" y1="90" x2="684" y2="90"/>
+    <line x1="578" y1="140" x2="684" y2="140"/>
+  </g>
+  <!-- the very short new branch -->
+  <line x1="564" y1="115" x2="578" y2="115" stroke="#c2410c" stroke-width="6" stroke-linecap="round"/>
+
+  <g font-size="14" fill="#0f172a">
+    <text x="694" y="95">Sample A</text>
+    <text x="694" y="145">Sample B</text>
+    <text x="694" y="195">Sample C</text>
+    <text x="694" y="275">Sample D</text>
+  </g>
+
+  <!-- callout to the short branch -->
+  <path d="M520,222 C520,180 545,130 563,119" fill="none" stroke="#c2410c" stroke-width="1.6" marker-end="url(#arr)"/>
+  <text x="456" y="240" font-size="12" fill="#c2410c" font-weight="700">New, very short branch</text>
+
+  <text x="420" y="312" font-size="13" font-weight="700" fill="#c2410c">Bifurcation</text>
+  <text x="420" y="330" font-size="13" fill="#334155">Branch is &lt; 1 substitution; same overall story.</text>
+</svg>
