@@ -63,9 +63,10 @@ ${outdir}/
 │   │   │   │   └── ${timestamp}-${taxa}-${cluster}.masked.nwk
 │   │   │   └── var
 │   │   │       └── ${sample}.tar.gz
-│   │   └── cluster
-│   │       ├── clusters.csv
-│   │       └── global_containment.csv
+│   │   ├── cluster
+│   │   │   ├── clusters.csv
+│   │   │   └── global_containment.csv
+│   │   └── config.json
 │   ├── multiqc
 │   │   └── multiqc_report.html
 │   ├── ${timestamp}.csv
@@ -106,6 +107,7 @@ Samples are assigned to clusters within each taxon using MinHash-based dissimila
 |------|-------------|
 | `clusters.csv` | Per-sample cluster assignments for the current run |
 | `global_containment.csv` | Per sample MinHash global containment scores of nearest matching cluster |
+| `../config.json` | Clustering settings a new taxa database was created with. Only written by the run that creates the taxa database (v2.2.0+). See [Database Config]({{ site.baseurl }}/docs/v2.0/pages/outputs/database#database-config-configjson) |
 
 # Core Genome Alignments
 Core genome SNP alignments produced by Polycore are published per cluster. Files with `.masked` in the filename are produced using the recombination-masked alignment from Gubbins.

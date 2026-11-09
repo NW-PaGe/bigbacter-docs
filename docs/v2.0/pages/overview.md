@@ -81,6 +81,15 @@ A key consequence of this design is that BigBacter can be run with **as little a
 {: .important }
 > Databases created using BigBacter v1 are not compatible with v2.
 
+## Consistent Cluster Assignments (v2.2.0)
+
+When new samples are added to an existing database, each one is compared with a single merged sketch per cluster. Before v2.2.0, that sketch was the union of every member's hashes, so large or diverse clusters looked farther away from new samples than they were. The same samples could land in different clusters depending on how many were added at a time, and in some cases a new sample started its own cluster even though an identical sample was already in the database.
+
+BigBacter v2.2.0 uses Floc v1.2.4 and builds each cluster's merged sketch only from hashes shared by most of its members (`--clust_assign_hashfreq 0.6`), with a default distance of `--clust_dist 0.1`. These defaults come from a [Floc evaluation](https://github.com/NW-PaGe/floc/blob/main/docs/evals/dist_vs_assign-hash-freq/README.md) across _E. coli_, _A. baumannii_, and _S. aureus_. See [this post]({{ site.baseurl }}/posts/bigbacter-v2-2-0-clustering-defaults/) for a summary.
+
+{: .important }
+> Each taxa database now records the settings it was built with in `config.json`, and BigBacter stops if `--clust_dist` does not match. Databases created before v2.2.0 should be rebuilt. See [Database Config]({{ site.baseurl }}/docs/v2.0/pages/outputs/database#database-config-configjson).
+
 ## Visualizing Cluster Relationships
 
 A neighbor-joining tree can be generated using the `--clust_plot true` parameter, allowing for investigation of overall cluster relationships across samples. Note that this tree is built from containment distances rather than sequence alignments, so the topology should not be interpreted as reflecting evolutionary history or directionality - branch lengths represent a non-directional magnitude of genomic divergence. See the example below:

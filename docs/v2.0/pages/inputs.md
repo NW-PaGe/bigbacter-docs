@@ -139,9 +139,12 @@ Path to the Microreact template JSON file used for visualization.
 Distance threshold used to define clusters.
 
 - Options: `0...1`
-- Default: `0.03`
+- Default: `0.1` (changed from `0.03` in v2.2.0)
 
 > Samples with a pairwise distance below this threshold will be assigned to the same cluster.
+
+{: .important }
+> A taxa database must always be used with the distance it was built with. Since v2.2.0, the distance is recorded in `<db>/<taxa>/config.json`, and BigBacter stops if `--clust_dist` does not match it. See [Database Config]({{ site.baseurl }}/docs/v2.0/pages/outputs/database#database-config-configjson).
 
 ## `--clust_min_hash_freq`
 Minimum frequency for a hash to be included in the global hash set.
@@ -158,6 +161,17 @@ Minimum fraction of sample hashes that must overlap with the global hash set aft
 - Default: `0.5`
 
 > Samples falling below this threshold may indicate low-quality or divergent sequences.
+
+## `--clust_assign_hashfreq`
+*New in v2.2.0.* Minimum fraction of a cluster's members a hash must be found in to represent that cluster when new samples are assigned to it. Passed to Floc as `--assign-hash-freq`.
+
+- Options: `0...1`
+- Default: `0.6`
+
+> When samples are added to an existing database, each new sample is compared with one merged sketch per cluster. At `0.6`, the merged sketch keeps only hashes shared by most members (a consensus), so it stays close to the size of one genome no matter how large or diverse the cluster becomes. `0` keeps every hash from every member, which was the behavior before v2.2.0 and can split identical samples into different clusters.
+
+{: .warning }
+Do not use `0` for new databases. The [Floc evaluation](https://github.com/NW-PaGe/floc/blob/main/docs/evals/dist_vs_assign-hash-freq/README.md) found that it split samples 0 SNPs apart into different clusters at every distance tested. A value different from the one a database was built with produces a warning, not an error.
 
 ## `--clust_ignore_qc`
 Whether to ignore clustering QC results and include all samples regardless of QC status.
