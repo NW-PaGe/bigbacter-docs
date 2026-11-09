@@ -29,6 +29,7 @@ The BigBacter database follows a hierarchical organization based on taxonomic cl
 ```bash
 ${db}/
 └── ${taxa}/
+    ├── config.json
     ├── clusters/
     │   └── ${cluster}/
     │       ├── asm/
@@ -48,6 +49,7 @@ ${db}/
 - **`${taxa}`**: Species-level taxonomic identifier (e.g., `*Escherichia coli*`)
 - **`clusters/${cluster}`**: Cluster-specific data grouped by genomic similarity using [Floc](https://github.com/DOH-JDJ0303/floc) (e.g., `clusters/1`)
 - **`sig/`**: Species-level signature files for cluster assignment
+- **`config.json`**: Clustering settings the taxa database was created with (v2.2.0+)
 
 ---
 
@@ -81,6 +83,45 @@ Species-wide genomic signatures used for cluster assignment of new samples.
 
 {: .note}
 Floc repurposes the `filename` field in the Sourmash signature to store cluster information.
+
+### Database Config (`config.json`)
+
+*New in v2.2.0.*
+
+#### Purpose
+Records the clustering settings a taxa database was created with, so later runs cluster new samples the same way.
+
+#### Contents
+
+|Field|Description|
+|`clust_dist`|Distance threshold (`--clust_dist`) the database was built with|
+|`clust_assign_hashfreq`|Assign hash frequency (`--clust_assign_hashfreq`) the database was built with|
+|`floc_version`|Floc version used to create the database|
+|`bigbacter_version`|BigBacter version used to create the database|
+
+**Example**
+```json
+{
+  "clust_dist": 0.1,
+  "clust_assign_hashfreq": 0.6,
+  "floc_version": "1.2.4",
+  "bigbacter_version": "2.2.0"
+}
+```
+
+`config.json` is written only by the `--push true` run that creates the taxa database. It is saved uncompressed to `<db>/<taxa>/config.json`, with a copy in `<outdir>/<timestamp>/<taxa>/config.json`. Later runs do not write or push it again.
+
+#### Checks
+Before clustering against an existing taxa database (one with a `sig/` directory), BigBacter reads its `config.json`:
+
+|Condition|Result|
+|:-|:-|
+|`config.json` is missing|Run fails|
+|`--clust_dist` differs from `clust_dist`|Run fails|
+|`--clust_assign_hashfreq` differs from `clust_assign_hashfreq`|Warning only|
+
+{: .important }
+> Databases created before v2.2.0 have no `config.json`, so runs against them fail. We strongly recommend rebuilding them with the new defaults: point `--db` at a new, empty location and run all previously processed samples through BigBacter v2.2.0 with `--push true`. Cluster names and membership will likely change. See [this post]({{ site.baseurl }}/posts/bigbacter-v2-2-0-clustering-defaults/) for details and a temporary workaround.
 
 ---
 

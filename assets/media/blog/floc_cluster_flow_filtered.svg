@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 500" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">
+  <title id="t">How Floc clusters new samples (filtered cluster sketch)</title>
+  <desc id="d">If clusters already exist, each new sample is compared once with each cluster's merged sketch, which keeps only hashes found in at least 60% of the cluster&#39;s members (--assign-hash-freq 0.6). In this example the new sample is identical to cluster member 1. Its distance to the merged sketch is 1 minus the average of the two containments, 5/5 and 5/5, which is 0.00, so with a distance threshold of 0.1 it is assigned to the cluster. Unassigned samples, or all samples when no clusters exist yet, are clustered with DBSCAN, which compares every sample with every other sample, to form new clusters.</desc>
+  <style>
+    .box  { fill: #ffffff; stroke: #d6d3dc; stroke-width: 1.5; }
+    .main { fill: #f5f2ff; stroke: #7253ed; stroke-width: 1.5; }
+    .out  { fill: #f5f6fa; stroke: #959396; stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .h    { fill: #27262b; font-size: 15px; font-weight: 600; }
+    .s    { fill: #5c5962; font-size: 12px; }
+    .xs   { fill: #5c5962; font-size: 11px; }
+    .m    { fill: #27262b; font-size: 12.5px; font-weight: 600; }
+    .lbl  { fill: #7253ed; font-size: 12px; font-weight: 600; }
+    .line { fill: none; stroke: #959396; stroke-width: 1.5; marker-end: url(#a); }
+    .cmp  { fill: none; stroke: #2c84fa; stroke-width: 1.5; stroke-dasharray: 3 3; marker-start: url(#b); marker-end: url(#b); }
+    .edge { stroke: #2c84fa; stroke-width: 1.2; opacity: .55; }
+    .tip  { fill: #959396; }
+    .tipb { fill: #2c84fa; }
+    .hc   { fill: #7253ed; }
+    .hn   { fill: #2c84fa; }
+    .hx   { fill: none; stroke: #c8c5cf; stroke-width: 1; }
+    .dim  { opacity: .55; filter: grayscale(1); }
+    @media (prefers-color-scheme: dark) {
+      .box  { fill: #27262b; stroke: #44434d; }
+      .main { fill: #2c2840; stroke: #9d86f3; }
+      .out  { fill: #302d36; stroke: #8e8b96; }
+      .h, .m { fill: #e6e1e8; }
+      .s, .xs { fill: #b8b5be; }
+      .lbl  { fill: #9d86f3; }
+      .line { stroke: #8e8b96; }
+      .tip  { fill: #8e8b96; }
+      .hc   { fill: #9d86f3; }
+      .hx   { stroke: #5c5962; }
+      .cmp, .edge { stroke: #5aa2ff; }
+      .tipb, .hn { fill: #5aa2ff; }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="tip" d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="tipb" d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+<g class="dim">
+<rect class="box" x="10" y="225" width="120" height="50" rx="6"/><text class="h" x="70" y="255" text-anchor="middle">New samples</text>
+<polygon class="box" points="215,205 275,250 215,295 155,250"/>
+<text class="h" x="215" y="246" text-anchor="middle" font-size="13">Existing</text><text class="h" x="215" y="263" text-anchor="middle" font-size="13">clusters?</text>
+<line class="line" x1="130" y1="250" x2="153" y2="250"/>
+<polyline class="line" points="215,205 215,110 318,110"/><text class="lbl" x="223" y="103">Yes</text>
+<polyline class="line" points="215,295 215,395 318,395"/><text class="lbl" x="223" y="388">No</text>
+</g>
+<rect class="main" x="320" y="20" width="320" height="240" rx="6"/>
+<g>
+<text class="h" x="480" y="45" text-anchor="middle">Assign</text>
+<text class="s" x="480" y="63" text-anchor="middle">each new sample vs. one merged sketch per cluster</text>
+<rect class="hc" x="338" y="85" width="10" height="10" rx="2"/>
+<rect class="hc" x="351" y="85" width="10" height="10" rx="2"/>
+<rect class="hc" x="364" y="85" width="10" height="10" rx="2"/>
+<rect class="hc" x="377" y="85" width="10" height="10" rx="2"/>
+<rect class="hc" x="390" y="85" width="10" height="10" rx="2"/>
+<rect class="hx" x="403" y="85" width="10" height="10" rx="2"/>
+<rect class="hx" x="416" y="85" width="10" height="10" rx="2"/>
+<rect class="hx" x="429" y="85" width="10" height="10" rx="2"/>
+<text class="xs" x="333" y="94" text-anchor="end">1</text>
+<rect class="hc" x="338" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="351" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="364" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="377" y="100" width="10" height="10" rx="2"/>
+<rect class="hx" x="390" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="403" y="100" width="10" height="10" rx="2"/>
+<rect class="hx" x="416" y="100" width="10" height="10" rx="2"/>
+<rect class="hx" x="429" y="100" width="10" height="10" rx="2"/>
+<text class="xs" x="333" y="109" text-anchor="end">2</text>
+<rect class="hc" x="338" y="115" width="10" height="10" rx="2"/>
+<rect class="hc" x="351" y="115" width="10" height="10" rx="2"/>
+<rect class="hc" x="364" y="115" width="10" height="10" rx="2"/>
+<rect class="hc" x="377" y="115" width="10" height="10" rx="2"/>
+<rect class="hc" x="390" y="115" width="10" height="10" rx="2"/>
+<rect class="hx" x="403" y="115" width="10" height="10" rx="2"/>
+<rect class="hc" x="416" y="115" width="10" height="10" rx="2"/>
+<rect class="hc" x="429" y="115" width="10" height="10" rx="2"/>
+<text class="xs" x="333" y="124" text-anchor="end">3</text>
+<text class="xs" x="388" y="146" text-anchor="middle">cluster members</text>
+<line class="cmp" x1="545" y1="116" x2="545" y2="155"/>
+<rect class="hn" x="494" y="162" width="10" height="10" rx="2"/>
+<rect class="hn" x="507" y="162" width="10" height="10" rx="2"/>
+<rect class="hn" x="520" y="162" width="10" height="10" rx="2"/>
+<rect class="hn" x="533" y="162" width="10" height="10" rx="2"/>
+<rect class="hn" x="546" y="162" width="10" height="10" rx="2"/>
+<rect class="hx" x="559" y="162" width="10" height="10" rx="2"/>
+<rect class="hx" x="572" y="162" width="10" height="10" rx="2"/>
+<rect class="hx" x="585" y="162" width="10" height="10" rx="2"/>
+<text class="xs" x="545" y="190" text-anchor="middle">new sample (same as member 1)</text>
+</g>
+<line class="line" x1="444" y1="105" x2="487" y2="105"/>
+<text class="xs" x="465" y="123" text-anchor="middle">≥ 60%</text>
+<rect class="hc" x="494" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="507" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="520" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="533" y="100" width="10" height="10" rx="2"/>
+<rect class="hc" x="546" y="100" width="10" height="10" rx="2"/>
+<rect class="hx" x="559" y="100" width="10" height="10" rx="2"/>
+<rect class="hx" x="572" y="100" width="10" height="10" rx="2"/>
+<rect class="hx" x="585" y="100" width="10" height="10" rx="2"/>
+<text class="xs" x="545" y="92" text-anchor="middle">merged sketch (filtered)</text>
+<text class="xs" x="338" y="214">d = 1 − avg(sample in cluster, cluster in sample)</text>
+<text class="m" x="338" y="233">d = 1 − avg(5/5, 5/5) = 0.00 &lt; 0.1 → joins cluster</text>
+<g class="dim">
+<line class="line" x1="640" y1="110" x2="683" y2="110"/>
+<rect class="out" x="685" y="85" width="125" height="50" rx="6"/><text class="h" x="747" y="108" text-anchor="middle">Join existing</text><text class="h" x="747" y="126" text-anchor="middle">cluster</text>
+<line class="line" x1="480" y1="260" x2="480" y2="303"/><text class="lbl" x="488" y="286">Unassigned</text>
+<rect class="main" x="320" y="305" width="320" height="180" rx="6"/>
+<text class="h" x="480" y="330" text-anchor="middle">DBSCAN</text>
+<text class="s" x="480" y="348" text-anchor="middle">every sample vs. every other sample</text>
+<line class="edge" x1="480.0" y1="370.0" x2="522.8" y2="401.1"/>
+<line class="edge" x1="480.0" y1="370.0" x2="506.5" y2="451.4"/>
+<line class="edge" x1="480.0" y1="370.0" x2="453.5" y2="451.4"/>
+<line class="edge" x1="480.0" y1="370.0" x2="437.2" y2="401.1"/>
+<line class="edge" x1="522.8" y1="401.1" x2="506.5" y2="451.4"/>
+<line class="edge" x1="522.8" y1="401.1" x2="453.5" y2="451.4"/>
+<line class="edge" x1="522.8" y1="401.1" x2="437.2" y2="401.1"/>
+<line class="edge" x1="506.5" y1="451.4" x2="453.5" y2="451.4"/>
+<line class="edge" x1="506.5" y1="451.4" x2="437.2" y2="401.1"/>
+<line class="edge" x1="453.5" y1="451.4" x2="437.2" y2="401.1"/>
+<circle class="hn" cx="480.0" cy="370.0" r="6"/>
+<circle class="hn" cx="522.8" cy="401.1" r="6"/>
+<circle class="hn" cx="506.5" cy="451.4" r="6"/>
+<circle class="hn" cx="453.5" cy="451.4" r="6"/>
+<circle class="hn" cx="437.2" cy="401.1" r="6"/>
+<line class="line" x1="640" y1="395" x2="683" y2="395"/>
+<rect class="out" x="685" y="370" width="125" height="50" rx="6"/><text class="h" x="747" y="400" text-anchor="middle">New clusters</text>
+</g>
+</svg>
